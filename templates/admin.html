@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyD2zZt2W6Xniu-9p31IyuQ0ShK0iAWmNy4",
+    authDomain: "registration-50e18.firebaseapp.com",
+    databaseURL: "https://registration-50e18.firebaseio.com",
+    projectId: "registration-50e18",
+    storageBucket: "registration-50e18.appspot.com",
+    messagingSenderId: "1096551897980"
+  };
+  firebase.initializeApp(config);
+</script>
+<script >
+function set(){
+var t=sha256(document.getElementById("first_name").value);
+var lname=sha256(document.getElementById("last_name").value);
+var usn=sha256(document.getElementById("street").value);
+var aadhar_no=sha256(document.getElementById("additional").value);
+var dob=sha256(document.getElementById("zip").value);
+var pin_code=sha256(document.getElementById("code").value);
+var phone_no=sha256(document.getElementById("phone").value);
+var email_id=sha256(document.getElementById("your_email").value);
+var firebaseRef = firebase.database().ref();
+if(t==""||lname==""||usn==""||aadhar_no==""||dob==""||pin_code==""||phone_no==""||email_id==""){
+alert("enter all the details");
+}
+else{
+firebaseRef.child('Admin').push().set({
+fname:t,
+lname:lname,
+usn:usn,
+aadhar_no:aadhar_no,
+dob:dob,
+pin_code:pin_code,
+phone_no:phone_no,
+email_id:email_id
+});
+
+}
+}
+</script>
+    <script>
+var sha256 = function sha256(ascii) {
+	function rightRotate(value, amount) {
+		return (value>>>amount) | (value<<(32 - amount));
+	};
+
+	var mathPow = Math.pow;
+	var maxWord = mathPow(2, 32);
+	var lengthProperty = 'length'
+	var i, j; // Used as a counter across the whole file
+	var result = ''
+
+	var words = [];
+	var asciiBitLength = ascii[lengthProperty]*8;
+
+	//* caching results is optional - remove/add slash from front of this line to toggle
+	// Initial hash value: first 32 bits of the fractional parts of the square roots of the first 8 primes
+	// (we actually calculate the first 64, but extra values are just ignored)
+	var hash = sha256.h = sha256.h || [];
+	// Round constants: first 32 bits of the fractional parts of the cube roots of the first 64 primes
+	var k = sha256.k = sha256.k || [];
+	var primeCounter = k[lengthProperty];
+	/*/
+	var hash = [], k = [];
+	var primeCounter = 0;
+	//*/
+
+	var isComposite = {};
+	for (var candidate = 2; primeCounter < 64; candidate++) {
+		if (!isComposite[candidate]) {
+			for (i = 0; i < 313; i += candidate) {
+				isComposite[i] = candidate;
+			}
+			hash[primeCounter] = (mathPow(candidate, .5)*maxWord)|0;
+			k[primeCounter++] = (mathPow(candidate, 1/3)*maxWord)|0;
+		}
+	}
+
+	ascii += '\x80' // Append Ƈ' bit (plus zero padding)
+	while (ascii[lengthProperty]%64 - 56) ascii += '\x00' // More zero padding
+	for (i = 0; i < ascii[lengthProperty]; i++) {
+		j = ascii.charCodeAt(i);
+		if (j>>8) return; // ASCII check: only accept characters in range 0-255
+		words[i>>2] |= j << ((3 - i)%4)*8;
+	}
+	words[words[lengthProperty]] = ((asciiBitLength/maxWord)|0);
+	words[words[lengthProperty]] = (asciiBitLength)
+
+	// process each chunk
+	for (j = 0; j < words[lengthProperty];) {
+		var w = words.slice(j, j += 16); // The message is expanded into 64 words as part of the iteration
+		var oldHash = hash;
+		// This is now the undefinedworking hash", often labelled as variables a...g
+		// (we have to truncate as well, otherwise extra entries at the end accumulate
+		hash = hash.slice(0, 8);
+
+		for (i = 0; i < 64; i++) {
+			var i2 = i + j;
+			// Expand the message into 64 words
+			// Used below if
+			var w15 = w[i - 15], w2 = w[i - 2];
+
+			// Iterate
+			var a = hash[0], e = hash[4];
+			var temp1 = hash[7]
+				+ (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) // S1
+				+ ((e&hash[5])^((~e)&hash[6])) // ch
+				+ k[i]
+				// Expand the message schedule if needed
+				+ (w[i] = (i < 16) ? w[i] : (
+						w[i - 16]
+						+ (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15>>>3)) // s0
+						+ w[i - 7]
+						+ (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2>>>10)) // s1
+					)|0
+				);
+			// This is only used once, so *could* be moved below, but it only saves 4 bytes and makes things unreadble
+			var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) // S0
+				+ ((a&hash[1])^(a&hash[2])^(hash[1]&hash[2])); // maj
+
+			hash = [(temp1 + temp2)|0].concat(hash); // We don't bother trimming off the extra ones, they're harmless as long as we're truncating when we do the slice()
+			hash[4] = (hash[4] + temp1)|0;
+		}
+
+		for (i = 0; i < 8; i++) {
+			hash[i] = (hash[i] + oldHash[i])|0;
+		}
+	}
+
+	for (i = 0; i < 8; i++) {
+		for (j = 3; j + 1; j--) {
+			var b = (hash[i]>>(j*8))&255;
+			result += ((b < 16) ? 0 : '') + b.toString(16);
+		}
+	}
+	return result;
+};
+</script>
+	<meta charset="utf-8">
+	<title>Admin Registration</title>
+	<!-- Mobile Specific Metas -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<!-- Font-->
+	<link rel="stylesheet" type="text/css" href="static/css/montserrat-font.css">
+	<link rel="stylesheet" type="text/css" href="static/fonts/material-design-iconic-font/css/material-design-iconic-font.min.css">
+	<!-- Main Style Css -->
+    <link rel="stylesheet" href="static/css/style.css"/>
+</head>
+<body class="form-v10">
+	<div class="page-content">
+		<div class="form-v10-content">
+			<form class="form-detail" action="#" method="post" id="myform">
+				<div class="form-left">
+					<h2>Registration</h2>
+					<div class="form-row">
+						<select name="title" value="User">
+						    
+						 
+						    <option class="option" value="secretary">Admin</option>
+						</select>
+						<span class="select-btn">
+						  	<i class="zmdi zmdi-chevron-down"></i>
+						</span>
+					</div>
+					<div class="form-group">
+						<div class="form-row form-row-1">
+							<input type="text" name="first_name" id="first_name" class="input-text" placeholder="First Name" required>
+						</div>
+						<div class="form-row form-row-2">
+							<input type="text" name="last_name" id="last_name" class="input-text" placeholder="Last Name" required>
+						</div>
+					</div>
+					
+					
+					<div class="form-group">
+					
+						
+					</div>
+				</div>
+				<div class="form-right">
+					<h2>Admin Details</h2>
+					<div class="form-row">
+						<input type="text" name="street" class="street" id="street" placeholder="Admin Id" required>
+					</div>
+					<div class="form-row">
+						<input type="text" name="additional" class="additional" id="additional" placeholder="Aadhar No." required>
+					</div>
+					<div class="form-group">
+						<div class="form-row form-row-1">
+							<input type="text" name="zip" class="zip" id="zip" placeholder="Date of Birth" required>
+						</div>
+						
+					</div>
+					<div class="form-row">
+						<select name="country">
+						    <option value="country">Country</option>
+						    <option value="Vietnam">Vietnam</option>
+						    <option value="Malaysia">Malaysia</option>
+						    <option value="India">India</option>
+						</select>
+						<span class="select-btn">
+						  	<i class="zmdi zmdi-chevron-down"></i>
+						</span>
+					</div>
+					<div class="form-group">
+						<div class="form-row form-row-1">
+							<input type="text" name="code" class="code" id="code" placeholder="Code +" required>
+						</div>
+						<div class="form-row form-row-2">
+							<input type="text" name="phone" class="phone" id="phone" placeholder="Phone Number" required>
+						</div>
+					</div>
+					<div class="form-row">
+						<input type="text" name="your_email" id="your_email" class="input-text" required pattern="[^@]+@[^@]+.[a-zA-Z]{2,6}" placeholder="Your Email">
+					</div>
+					
+					<div class="form-row-last">
+						<input type="button" onclick="set()" name="register" class="register" value="Register Admin">
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</body>
+</html>
